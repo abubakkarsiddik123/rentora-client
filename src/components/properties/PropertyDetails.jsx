@@ -7,7 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { authClient } from "@/lib/auth-client";
 import BookingModal from "@/components/properties/BookingModal";
-// import { addFavorite, getFavorite, removeFavorite } from "@/lib/api/favorites";
+import { addFavorite, getFavorite, removeFavorite } from "@/lib/api/favorites";
 
 export default function PropertyDetails({ property }) {
   const router = useRouter();
@@ -29,13 +29,13 @@ export default function PropertyDetails({ property }) {
     }
   }, [isPending, user, pathname, router]);
 
-  // পেজ খুললে আগে থেকেই ফেভারিট কিনা দেখে নিন
-//   useEffect(() => {
-//     if (!user?.id) return;
-//     getFavorite(user.id, property._id)
-//       .then(setFavorite)
-//       .catch(() => {});
-//   }, [user?.id, property._id]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    getFavorite(user.id, property._id)
+      .then(setFavorite)
+      .catch(() => {});
+  }, [user?.id, property._id]);
 
   if (isPending || !user) {
     return (

@@ -78,7 +78,7 @@ function SignUpForm() {
           </TextField>
 
           {/* Image */}
-          <TextField isRequired name="image" type="text">
+          <TextField isRequired name="image" type="url">
             <Label className={labelClass}>Image URL</Label>
             <Input className={inputClass} placeholder="Image URL" />
             <FieldError />

@@ -130,9 +130,11 @@ export default function BookingModal({ property, user, onClose }) {
           </div>
 
           <div className="flex items-center justify-between rounded-lg bg-[#faf8f4] px-4 py-3">
-            <span className="text-sm text-slate-600">Amount to pay</span>
+            <span className="text-sm text-slate-600">
+              Reservation fee (10%)
+            </span>
             <span className="text-lg font-extrabold text-[#b8893a]">
-              ৳{Number(property.price).toLocaleString()}
+              ৳{Math.round(Number(property.price) * 0.1).toLocaleString()}
             </span>
           </div>
 

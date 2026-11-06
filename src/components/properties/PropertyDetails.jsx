@@ -6,6 +6,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { authClient } from "@/lib/auth-client";
+import BookingModal from "@/components/properties/BookingModal";
+import { addFavorite, getFavorite, removeFavorite } from "@/lib/api/favorites";
 
 export default function PropertyDetails({ property }) {
   const router = useRouter();
@@ -15,6 +17,9 @@ export default function PropertyDetails({ property }) {
   const role = user?.role || "tenant";
 
   const [active, setActive] = useState(0);
+  const [showBooking, setShowBooking] = useState(false);
+  const [favorite, setFavorite] = useState(null);
+  const [favLoading, setFavLoading] = useState(false);
 
   // প্রাইভেট রুট: লগইন না থাকলে সাইন-ইনে
   useEffect(() => {
@@ -23,6 +28,14 @@ export default function PropertyDetails({ property }) {
       router.replace(`/auth/signin?redirect=${encodeURIComponent(pathname)}`);
     }
   }, [isPending, user, pathname, router]);
+
+  // পেজ খুললে আগে থেকেই ফেভারিট কিনা দেখে নিন
+  useEffect(() => {
+    if (!user?.id) return;
+    getFavorite(user.id, property._id)
+      .then(setFavorite)
+      .catch(() => {});
+  }, [user?.id, property._id]);
 
   if (isPending || !user) {
     return (
@@ -33,6 +46,7 @@ export default function PropertyDetails({ property }) {
   }
 
   const {
+    _id,
     title,
     description,
     location,
@@ -50,9 +64,25 @@ export default function PropertyDetails({ property }) {
 
   const isAvailable = status === "available";
 
-  const handleBook = () => {
-    // TODO(booking): পরের ধাপে BookingModal এখানে খুলবে
-    toast.info("Booking feature coming next");
+  const handleBook = () => setShowBooking(true);
+
+  const handleFavorite = async () => {
+    setFavLoading(true);
+    try {
+      if (favorite) {
+        await removeFavorite(favorite._id, user.id);
+        setFavorite(null);
+        toast.success("Removed from favorites");
+      } else {
+        await addFavorite({ propertyId: _id, userId: user.id });
+        setFavorite(await getFavorite(user.id, _id));
+        toast.success("Added to favorites");
+      }
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setFavLoading(false);
+    }
   };
 
   return (
@@ -184,14 +214,30 @@ export default function PropertyDetails({ property }) {
             </p>
 
             {role === "tenant" ? (
-              <button
-                type="button"
-                onClick={handleBook}
-                disabled={!isAvailable}
-                className="mt-5 w-full rounded-lg bg-[#0f2a47] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#091b30] disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {isAvailable ? "Book Now" : "Already Booked"}
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={handleBook}
+                  disabled={!isAvailable}
+                  className="mt-5 w-full rounded-lg bg-[#0f2a47] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#091b30] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isAvailable ? "Book Now" : "Already Booked"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleFavorite}
+                  disabled={favLoading}
+                  className={`mt-3 flex w-full items-center justify-center gap-2 rounded-lg border px-6 py-3 text-sm font-semibold transition-colors disabled:opacity-60 ${
+                    favorite
+                      ? "border-[#b8893a] bg-[#b8893a]/10 text-[#b8893a]"
+                      : "border-[#0f2a47] text-[#0f2a47] hover:bg-[#0f2a47]/5"
+                  }`}
+                >
+                  <span aria-hidden="true">{favorite ? "♥" : "♡"}</span>
+                  {favorite ? "Remove from Favorites" : "Add to Favorites"}
+                </button>
+              </>
             ) : (
               <p className="mt-5 rounded-lg bg-slate-50 px-4 py-3 text-sm text-slate-500">
                 Only tenants can book properties.
@@ -212,6 +258,14 @@ export default function PropertyDetails({ property }) {
           </aside>
         </div>
       </div>
+
+      {showBooking && (
+        <BookingModal
+          property={property}
+          user={user}
+          onClose={() => setShowBooking(false)}
+        />
+      )}
     </section>
   );
 }

@@ -11,3 +11,14 @@ export async function getFeaturedProperties() {
 
   return res.json();
 }
+
+export async function getProperties(params = {}) {
+  const qs = new URLSearchParams(
+    Object.entries(params).filter(([, v]) => v !== "" && v != null),
+  ).toString();
+  const res = await fetch(`${BASE_URL}/api/properties?${qs}`, {
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error("Failed to fetch properties");
+  return res.json(); // { items, total, page, limit, totalPages }
+}

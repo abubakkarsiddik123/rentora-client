@@ -10,9 +10,7 @@ async function request(path, options = {}) {
   let body = null;
   try {
     body = await res.json();
-  } catch {
-    // খালি রেসপন্স হলে কিছু করার নেই
-  }
+  } catch {}
 
   if (!res.ok) {
     throw new Error(body?.message || `Request failed (${res.status})`);
@@ -20,21 +18,21 @@ async function request(path, options = {}) {
   return body;
 }
 
-// My Properties লিস্ট: শুধু ওই owner-এর প্রপার্টি (GET)
-export const getMyProperties = (ownerId) =>
-  request(`/api/properties?ownerId=${encodeURIComponent(ownerId)}`);
+export const getMyProperties = async (ownerId) => {
+  const data = await request(
+    `/api/properties?ownerId=${encodeURIComponent(ownerId)}&limit=50`,
+  );
+  return data.items;
+};
 
-// Edit পেজ: একটা প্রপার্টি আনা (GET)
 export const getPropertyById = (id) => request(`/api/properties/${id}`);
 
-// Edit পেজ: সেভ করা (PATCH), ownerId দিয়ে সার্ভার মালিক চেক করে
 export const updateProperty = (id, ownerId, data) =>
   request(`/api/properties/${id}`, {
     method: "PATCH",
     body: JSON.stringify({ ...data, ownerId }),
   });
 
-// লিস্ট পেজ: ডিলিট (DELETE), ownerId দিয়ে সার্ভার মালিক চেক করে
 export const deleteProperty = (id, ownerId) =>
   request(`/api/properties/${id}?ownerId=${encodeURIComponent(ownerId)}`, {
     method: "DELETE",

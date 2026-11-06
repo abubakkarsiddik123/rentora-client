@@ -6,7 +6,19 @@ import { toast } from "react-toastify";
 import { AlertDialog, Button } from "@heroui/react";
 import { authClient } from "@/lib/auth-client";
 import PageHeader from "@/components/dashboard/PageHeader";
-import { deleteProperty, getMyProperties } from "@/lib/api/properties/my-properties";
+import {
+  deleteProperty,
+  getMyProperties,
+} from "@/lib/api/properties/my-properties";
+
+const statusStyle = {
+  pending: "bg-amber-100 text-amber-700",
+  approved: "bg-green-100 text-green-700",
+  rejected: "bg-red-100 text-red-700",
+  booked: "bg-slate-200 text-slate-600",
+};
+
+const rentLabels = { Monthly: "month", Weekly: "week", Daily: "day" };
 
 export default function MyPropertiesPage() {
   const { data: session, isPending } = authClient.useSession();
@@ -96,15 +108,28 @@ export default function MyPropertiesPage() {
                     No image
                   </div>
                 )}
-                <span
-                  className={`absolute left-3 top-3 rounded-full px-3 py-1 text-xs font-semibold capitalize ${
-                    p.status === "available"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-slate-200 text-slate-600"
-                  }`}
-                >
-                  {p.status}
-                </span>
+                <div className="absolute left-3 top-3 flex items-center gap-2">
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${
+                      statusStyle[p.status] || "bg-slate-200 text-slate-600"
+                    }`}
+                  >
+                    {p.status}
+                  </span>
+                  {p.status === "rejected" && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        alert(p.rejectionReason || "No feedback provided.")
+                      }
+                      title="View rejection feedback"
+                      aria-label="View rejection feedback"
+                      className="rounded-full bg-white/90 px-2 py-0.5 text-base shadow-sm hover:bg-white"
+                    >
+                      👁️
+                    </button>
+                  )}
+                </div>
               </div>
 
               <div className="flex flex-1 flex-col p-5">
@@ -119,7 +144,7 @@ export default function MyPropertiesPage() {
                   ৳{Number(p.price).toLocaleString()}
                   <span className="text-xs font-normal text-slate-500">
                     {" "}
-                    / month
+                    / {rentLabels[p.rentType] || "month"}
                   </span>
                 </p>
 
@@ -160,12 +185,15 @@ export default function MyPropertiesPage() {
             <AlertDialog.CloseTrigger />
             <AlertDialog.Header>
               <AlertDialog.Icon status="danger" />
-              <AlertDialog.Heading>Delete property permanently?</AlertDialog.Heading>
+              <AlertDialog.Heading>
+                Delete property permanently?
+              </AlertDialog.Heading>
             </AlertDialog.Header>
             <AlertDialog.Body>
               <p>
-                This will permanently delete <strong>{deleteTarget?.title}</strong>{" "}
-                and all of its data. This action cannot be undone.
+                This will permanently delete{" "}
+                <strong>{deleteTarget?.title}</strong> and all of its data. This
+                action cannot be undone.
               </p>
             </AlertDialog.Body>
             <AlertDialog.Footer>

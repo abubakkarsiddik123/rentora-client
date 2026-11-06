@@ -43,6 +43,7 @@ export default function AddPropertyPage() {
       title: f.get("title")?.trim(),
       description: f.get("description")?.trim(),
       price: Number(f.get("price")),
+      rentType: f.get("rentType"),
       location: f.get("location")?.trim(),
       type: f.get("type"),
       bedrooms: Number(f.get("bedrooms")),
@@ -53,11 +54,15 @@ export default function AddPropertyPage() {
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean),
+      extraFeatures: (f.get("extraFeatures") || "")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
       ownerId: user.id,
       ownerEmail: user.email,
       ownerName: user.name,
     };
-    console.log("property of data",data);
+    console.log("property of data", data);
 
     if (data.images.length === 0) {
       toast.error("Please add at least one image URL");
@@ -69,7 +74,7 @@ export default function AddPropertyPage() {
     setSaving(true);
     try {
       await createProperty(data);
-      toast.success("Property added successfully!");
+      toast.success("Property submitted for admin approval");
       router.push("/dashboard/owner/my-properties");
     } catch (err) {
       console.log("Property data:", data);
@@ -123,7 +128,7 @@ export default function AddPropertyPage() {
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
             <label htmlFor="price" className={labelClass}>
-              Monthly rent (৳)
+              Rent (৳)
             </label>
             <input
               id="price"
@@ -155,6 +160,37 @@ export default function AddPropertyPage() {
                 </option>
               ))}
             </select>
+          </div>
+        </div>
+
+        {/* Rent type + Extra features */}
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div>
+            <label htmlFor="rentType" className={labelClass}>
+              Rent type
+            </label>
+            <select
+              id="rentType"
+              name="rentType"
+              required
+              defaultValue="Monthly"
+              className={inputClass}
+            >
+              <option value="Monthly">Monthly</option>
+              <option value="Weekly">Weekly</option>
+              <option value="Daily">Daily</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="extraFeatures" className={labelClass}>
+              Extra features (comma separated)
+            </label>
+            <input
+              id="extraFeatures"
+              name="extraFeatures"
+              placeholder="e.g. Rooftop garden, Pet friendly"
+              className={inputClass}
+            />
           </div>
         </div>
 

@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 
+const rentLabels = { Monthly: "month", Weekly: "week", Daily: "day" };
+
 export default function PropertyCard({ property }) {
   const {
     _id,
@@ -8,12 +10,14 @@ export default function PropertyCard({ property }) {
     location,
     type,
     price,
+    rentType,
     bedrooms,
     bathrooms,
     area,
     images,
   } = property;
   const cover = images?.[0];
+  const rentLabel = rentLabels[rentType] || "month";
 
   return (
     <div className="group overflow-hidden rounded-2xl border border-[#e6e1d6] bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
@@ -51,7 +55,10 @@ export default function PropertyCard({ property }) {
         <div className="mt-4 flex items-center justify-between">
           <p className="text-xl font-extrabold text-[#b8893a]">
             ৳{Number(price).toLocaleString()}
-            <span className="text-xs font-medium text-slate-500"> /month</span>
+            <span className="text-xs font-medium text-slate-500">
+              {" "}
+              /{rentLabel}
+            </span>
           </p>
           <Link
             href={`/properties/${_id}`}

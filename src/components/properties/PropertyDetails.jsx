@@ -9,6 +9,8 @@ import { authClient } from "@/lib/auth-client";
 import BookingModal from "@/components/properties/BookingModal";
 import { addFavorite, getFavorite, removeFavorite } from "@/lib/api/favorites";
 
+const rentLabels = { Monthly: "month", Weekly: "week", Daily: "day" };
+
 export default function PropertyDetails({ property }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -28,7 +30,6 @@ export default function PropertyDetails({ property }) {
       router.replace(`/auth/signin?redirect=${encodeURIComponent(pathname)}`);
     }
   }, [isPending, user, pathname, router]);
-
 
   useEffect(() => {
     if (!user?.id) return;
@@ -52,17 +53,20 @@ export default function PropertyDetails({ property }) {
     location,
     type,
     price,
+    rentType,
     bedrooms,
     bathrooms,
     area,
     images = [],
     amenities = [],
+    extraFeatures = [],
     status,
     ownerName,
     ownerEmail,
   } = property;
 
-  const isAvailable = status === "available";
+  const isAvailable = status === "approved";
+  const rentLabel = rentLabels[rentType] || "month";
 
   const handleBook = () => setShowBooking(true);
 
@@ -200,6 +204,24 @@ export default function PropertyDetails({ property }) {
                   </div>
                 </>
               )}
+
+              {extraFeatures.length > 0 && (
+                <>
+                  <h2 className="mt-6 text-lg font-bold text-[#0f2a47]">
+                    Extra Features
+                  </h2>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {extraFeatures.map((x) => (
+                      <span
+                        key={x}
+                        className="rounded-full border border-[#e6e1d6] bg-[#faf8f4] px-3 py-1 text-sm text-slate-600"
+                      >
+                        {x}
+                      </span>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -209,7 +231,7 @@ export default function PropertyDetails({ property }) {
               ৳{Number(price).toLocaleString()}
               <span className="text-sm font-medium text-slate-500">
                 {" "}
-                /month
+                /{rentLabel}
               </span>
             </p>
 
@@ -221,7 +243,7 @@ export default function PropertyDetails({ property }) {
                   disabled={!isAvailable}
                   className="mt-5 w-full rounded-lg bg-[#0f2a47] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#091b30] disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {isAvailable ? "Book Now" : "Already Booked"}
+                  {isAvailable ? "Book Now" : "Not available"}
                 </button>
 
                 <button

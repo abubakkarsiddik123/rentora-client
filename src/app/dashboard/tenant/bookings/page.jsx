@@ -6,6 +6,8 @@ import { authClient } from "@/lib/auth-client";
 import { getMyBookings } from "@/lib/api/bookings";
 import PageHeader from "@/components/dashboard/PageHeader";
 
+const ITEMS_PER_PAGE = 5;
+
 const statusStyle = {
   pending: "bg-amber-100 text-amber-700",
   approved: "bg-green-100 text-green-700",
@@ -30,14 +32,28 @@ export default function TenantBookingsPage() {
 
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     if (!userId) return;
+
     getMyBookings(userId)
       .then(setBookings)
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
   }, [userId]);
+
+  const totalPages = Math.ceil(bookings.length / ITEMS_PER_PAGE);
+
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentBookings = bookings.slice(
+    startIndex,
+    startIndex + ITEMS_PER_PAGE,
+  );
+
+  const goToPage = (page) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
 
   return (
     <div>
@@ -61,74 +77,127 @@ export default function TenantBookingsPage() {
           </Link>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-[#e6e1d6] bg-white shadow-sm">
-          <table className="w-full min-w-[760px] text-left text-sm">
-            <thead className="border-b border-[#e6e1d6] bg-[#faf8f4] text-xs uppercase tracking-wide text-slate-500">
-              <tr>
-                <th className="px-5 py-3">Property</th>
-                <th className="px-5 py-3">Booking date</th>
-                <th className="px-5 py-3">Amount paid</th>
-                <th className="px-5 py-3">Booking status</th>
-                <th className="px-5 py-3">Payment status</th>
-                <th className="px-5 py-3">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#e6e1d6]">
-              {bookings.map((b) => {
-                const paid = b.paymentStatus === "paid";
-                return (
-                  <tr key={b._id}>
-                    <td className="px-5 py-4 font-semibold text-[#0f2a47]">
-                      <Link
-                        href={`/properties/${b.propertyId}`}
-                        className="hover:underline"
-                      >
-                        {b.propertyTitle}
-                      </Link>
-                    </td>
-                    <td className="px-5 py-4 text-slate-600">
-                      {formatDate(b.createdAt)}
-                    </td>
-                    <td className="px-5 py-4 font-semibold text-[#b8893a]">
-                      ৳{paid ? Number(b.amount).toLocaleString() : 0}
-                    </td>
-                    <td className="px-5 py-4">
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${
-                          statusStyle[b.status] || "bg-slate-200 text-slate-600"
-                        }`}
-                      >
-                        {b.status}
-                      </span>
-                    </td>
-                    <td className="px-5 py-4">
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${
-                          paymentStyle[b.paymentStatus] ||
-                          "bg-slate-200 text-slate-600"
-                        }`}
-                      >
-                        {b.paymentStatus}
-                      </span>
-                    </td>
-                    <td className="px-5 py-4">
-                      {!paid && b.status !== "rejected" ? (
+        <>
+          <div className="overflow-x-auto rounded-2xl border border-[#e6e1d6] bg-white shadow-sm">
+            <table className="w-full min-w-[760px] text-left text-sm">
+              <thead className="border-b border-[#e6e1d6] bg-[#faf8f4] text-xs uppercase tracking-wide text-slate-500">
+                <tr>
+                  <th className="px-5 py-3">Property</th>
+                  <th className="px-5 py-3">Booking date</th>
+                  <th className="px-5 py-3">Amount paid</th>
+                  <th className="px-5 py-3">Booking status</th>
+                  <th className="px-5 py-3">Payment status</th>
+                  <th className="px-5 py-3">Action</th>
+                </tr>
+              </thead>
+
+              <tbody className="divide-y divide-[#e6e1d6]">
+                {currentBookings.map((b) => {
+                  const paid = b.paymentStatus === "paid";
+
+                  return (
+                    <tr key={b._id}>
+                      <td className="px-5 py-4 font-semibold text-[#0f2a47]">
                         <Link
-                          href={`/payment/${b._id}`}
-                          className="rounded-lg bg-[#0f2a47] px-4 py-2 text-xs font-semibold text-white hover:bg-[#091b30]"
+                          href={`/properties/${b.propertyId}`}
+                          className="hover:underline"
                         >
-                          Pay Now
+                          {b.propertyTitle}
                         </Link>
-                      ) : (
-                        <span className="text-slate-400">—</span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                      </td>
+
+                      <td className="px-5 py-4 text-slate-600">
+                        {formatDate(b.createdAt)}
+                      </td>
+
+                      <td className="px-5 py-4 font-semibold text-[#b8893a]">
+                        ৳{paid ? Number(b.amount).toLocaleString() : 0}
+                      </td>
+
+                      <td className="px-5 py-4">
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${
+                            statusStyle[b.status] ||
+                            "bg-slate-200 text-slate-600"
+                          }`}
+                        >
+                          {b.status}
+                        </span>
+                      </td>
+
+                      <td className="px-5 py-4">
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-semibold capitalize ${
+                            paymentStyle[b.paymentStatus] ||
+                            "bg-slate-200 text-slate-600"
+                          }`}
+                        >
+                          {b.paymentStatus}
+                        </span>
+                      </td>
+
+                      <td className="px-5 py-4">
+                        {!paid && b.status !== "rejected" ? (
+                          <Link
+                            href={`/payment/${b._id}`}
+                            className="rounded-lg bg-[#0f2a47] px-4 py-2 text-xs font-semibold text-white hover:bg-[#091b30]"
+                          >
+                            Pay Now
+                          </Link>
+                        ) : (
+                          <span className="text-slate-400">—</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+            <p className="text-sm text-slate-500">
+              Showing {startIndex + 1} to{" "}
+              {Math.min(startIndex + ITEMS_PER_PAGE, bookings.length)} of{" "}
+              {bookings.length} bookings
+            </p>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="rounded-lg border border-[#e6e1d6] px-3 py-2 text-sm font-medium text-[#0f2a47] transition hover:bg-[#faf8f4] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Previous
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    onClick={() => goToPage(page)}
+                    className={`h-9 w-9 rounded-lg text-sm font-semibold transition ${
+                      currentPage === page
+                        ? "bg-[#0f2a47] text-white"
+                        : "border border-[#e6e1d6] text-[#0f2a47] hover:bg-[#faf8f4]"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ),
+              )}
+
+              <button
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="rounded-lg border border-[#e6e1d6] px-3 py-2 text-sm font-medium text-[#0f2a47] transition hover:bg-[#faf8f4] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

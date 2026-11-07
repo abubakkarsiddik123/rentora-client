@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { authClient } from "@/lib/auth-client";
 import BookingModal from "@/components/properties/BookingModal";
 import { addFavorite, getFavorite, removeFavorite } from "@/lib/api/favorites";
+import PropertyReviews from "@/components/properties/PropertyReviews";
 
 const rentLabels = { Monthly: "month", Weekly: "week", Daily: "day" };
 
@@ -280,6 +281,7 @@ export default function PropertyDetails({ property }) {
           </aside>
         </div>
       </div>
+      <PropertyReviews propertyId={_id} user={user} role={role} />
 
       {showBooking && (
         <BookingModal

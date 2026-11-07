@@ -1,5 +1,5 @@
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5005";
-
+import { request } from "@/lib/api/client";
 export async function getFeaturedProperties() {
   const res = await fetch(`${BASE_URL}/api/properties/featured`, {
     cache: "no-store",
@@ -11,6 +11,8 @@ export async function getFeaturedProperties() {
 
   return res.json();
 }
+export const getTopLocations = () => request("/api/top-locations");
+export const getPropertyTypes = () => request("/api/property-types");
 
 export async function getProperties(params = {}) {
   const qs = new URLSearchParams(

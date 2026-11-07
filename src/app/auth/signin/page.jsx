@@ -72,7 +72,7 @@ function SignInForm() {
         </h1>
 
         <p className="mb-8 text-center text-sm text-white/50">
-          Sign in to your RentNest account
+          Sign in to your Rentora account
         </p>
 
         <Form className="flex w-full flex-col gap-5" onSubmit={onSubmit}>
@@ -117,7 +117,7 @@ function SignInForm() {
           </Button>
 
           <p className="pt-1 text-center text-sm text-white/45">
-            New to RentNest?{" "}
+            New to Rentora?{" "}
             <Link
               href={`/auth/signup?redirect=${encodeURIComponent(redirectTo || "")}`}
               className="font-medium text-[#b8893a] hover:underline"

@@ -13,8 +13,6 @@ import {
   Form,
   Input,
   Label,
-  Radio,
-  RadioGroup,
   TextField,
 } from "@heroui/react";
 import { toast } from "react-toastify";
@@ -33,14 +31,12 @@ function SignUpForm() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const user = Object.fromEntries(formData.entries());
-    console.log(user,"signup user");
 
     const { data, error } = await authClient.signUp.email({
       name: user?.name,
       image: user?.image,
       email: user?.email,
       password: user?.password,
-      role: user?.role,
     });
 
     if (!data) {
@@ -66,7 +62,7 @@ function SignUpForm() {
           Sign Up
         </h1>
         <p className="mb-8 text-center text-sm text-white/50">
-          Join RentNest as a tenant or property owner
+          Join Rentora and start booking properties
         </p>
 
         <Form className="flex w-full flex-col gap-5" onSubmit={onSubmit}>
@@ -131,33 +127,6 @@ function SignUpForm() {
             </Description>
             <FieldError />
           </TextField>
-
-          {/* Role */}
-          <div className="flex flex-col gap-4">
-            <Label className="text-sm font-medium text-white/70">I am a</Label>
-            <RadioGroup
-              defaultValue="tenant"
-              name="role"
-              orientation="horizontal"
-            >
-              <Radio value="tenant">
-                <Radio.Content>
-                  <Radio.Control>
-                    <Radio.Indicator />
-                  </Radio.Control>
-                  <span className="text-white">Tenant</span>
-                </Radio.Content>
-              </Radio>
-              <Radio value="owner">
-                <Radio.Content>
-                  <Radio.Control>
-                    <Radio.Indicator />
-                  </Radio.Control>
-                  <span className="text-white">Owner</span>
-                </Radio.Content>
-              </Radio>
-            </RadioGroup>
-          </div>
 
           {/* Submit + Reset */}
           <div className="mt-1 flex gap-3">

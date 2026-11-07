@@ -19,36 +19,48 @@ import { authClient } from "@/lib/auth-client";
 
 const inputClass =
   "h-12 w-full rounded-xl border border-white/[0.09] bg-white/[0.04] px-4 text-sm text-white placeholder:text-white/30";
+
 const labelClass = "mb-2 text-sm font-medium text-white/70";
+
+function getDashboardPath(role) {
+  if (role === "admin") return "/dashboard/admin";
+  if (role === "owner") return "/dashboard/owner";
+  return "/dashboard/tenant";
+}
 
 function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect") || "/";
+  const redirectTo = searchParams.get("redirect");
 
   const onSubmit = async (e) => {
     e.preventDefault();
+
     const formData = new FormData(e.currentTarget);
     const user = Object.fromEntries(formData.entries());
 
     const { data, error } = await authClient.signIn.email({
-      email: user?.email,
-      password: user?.password,
+      email: user.email,
+      password: user.password,
     });
 
     if (!data) {
       toast.error(error?.message || "Invalid email or password");
       return;
     }
+
+    const role = data.user?.role;
+    const destination = redirectTo || getDashboardPath(role);
+
     toast.success("Logged in successfully!");
-    router.push(redirectTo);
+    router.push(destination);
     router.refresh();
   };
 
   const handleGoogle = async () => {
     await authClient.signIn.social({
       provider: "google",
-      callbackURL: redirectTo,
+      callbackURL: redirectTo || "/",
     });
   };
 
@@ -58,19 +70,18 @@ function SignInForm() {
         <h1 className="mb-2 text-center text-3xl font-semibold tracking-[-0.03em] text-white">
           Login
         </h1>
+
         <p className="mb-8 text-center text-sm text-white/50">
           Sign in to your RentNest account
         </p>
 
         <Form className="flex w-full flex-col gap-5" onSubmit={onSubmit}>
-          {/* Email */}
           <TextField isRequired name="email" type="email">
             <Label className={labelClass}>Email</Label>
             <Input className={inputClass} placeholder="Enter your email" />
             <FieldError />
           </TextField>
 
-          {/* Password */}
           <TextField isRequired name="password" type="password">
             <Label className={labelClass}>Password</Label>
             <Input
@@ -81,7 +92,6 @@ function SignInForm() {
             <FieldError />
           </TextField>
 
-          {/* Submit */}
           <Button
             type="submit"
             className="mt-1 h-12 w-full rounded-xl bg-[#b8893a] text-sm font-semibold text-[#0a1a2f]"
@@ -90,14 +100,12 @@ function SignInForm() {
             Login
           </Button>
 
-          {/* Divider */}
           <div className="flex items-center gap-4 py-1">
             <div className="h-px flex-1 bg-white/[0.08]" />
             <span className="text-[11px] font-medium text-white/30">OR</span>
             <div className="h-px flex-1 bg-white/[0.08]" />
           </div>
 
-          {/* Google */}
           <Button
             type="button"
             variant="secondary"
@@ -108,11 +116,10 @@ function SignInForm() {
             Continue with Google
           </Button>
 
-          {/* Register */}
           <p className="pt-1 text-center text-sm text-white/45">
             New to RentNest?{" "}
             <Link
-              href={`/auth/signup?redirect=${encodeURIComponent(redirectTo)}`}
+              href={`/auth/signup?redirect=${encodeURIComponent(redirectTo || "")}`}
               className="font-medium text-[#b8893a] hover:underline"
             >
               Register

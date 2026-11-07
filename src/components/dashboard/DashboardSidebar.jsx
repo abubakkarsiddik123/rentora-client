@@ -24,8 +24,21 @@ const navByRole = {
       href: "/dashboard/tenant/bookings",
       label: "My Bookings",
     },
-    { icon: Bookmark, href: "/dashboard/tenant/favorites", label: "Favorites" },
-    { icon: Person, href: "/dashboard/profile", label: "Profile" },
+    {
+      icon: Bookmark,
+      href: "/dashboard/tenant/favorites",
+      label: "Favorites",
+    },
+    {
+      icon: FileText,
+      href: "/dashboard/tenant/become-owner",
+      label: "Become an Owner",
+    },
+    {
+      icon: Person,
+      href: "/dashboard/profile",
+      label: "Profile",
+    },
   ],
   owner: [
     { icon: ChartColumn, href: "/dashboard/owner", label: "Analytics" },
@@ -62,6 +75,11 @@ const navByRole = {
       icon: CircleDollar,
       href: "/dashboard/admin/transactions",
       label: "Transactions",
+    },
+    {
+      icon: FileText,
+      href: "/dashboard/admin/owner-requests",
+      label: "Owner Requests",
     },
     { icon: Person, href: "/dashboard/profile", label: "Profile" },
   ],

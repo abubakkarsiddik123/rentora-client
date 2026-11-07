@@ -2,7 +2,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5005";
 
 export async function getFeaturedProperties() {
   const res = await fetch(`${BASE_URL}/api/properties/featured`, {
-    next: { revalidate: 60 },
+    cache: "no-store",
   });
 
   if (!res.ok) {
@@ -22,7 +22,6 @@ export async function getProperties(params = {}) {
   if (!res.ok) throw new Error("Failed to fetch properties");
   return res.json(); // { items, total, page, limit, totalPages }
 }
-
 
 export async function getPropertyById(id) {
   const res = await fetch(`${BASE_URL}/api/properties/${id}`, {

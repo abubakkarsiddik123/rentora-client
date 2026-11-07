@@ -35,5 +35,18 @@ export const auth = betterAuth({
     },
   },
 
-  plugins: [jwt()],
+  plugins: [
+    jwt({
+      jwt: {
+        issuer: process.env.CLIENT_URL,
+        audience: process.env.CLIENT_URL,
+        expirationTime: "1h",
+        definePayload: ({ user }) => ({
+          name: user?.name,
+          email: user?.email,
+          role: user?.role,
+        }),
+      },
+    }),
+  ],
 });

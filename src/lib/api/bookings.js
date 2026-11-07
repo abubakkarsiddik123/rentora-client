@@ -1,28 +1,17 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5005";
+import { request } from "@/lib/api/client";
 
-export async function createBooking(data) {
-  const res = await fetch(`${BASE_URL}/api/bookings`, {
+export const createBooking = (data) =>
+  request("/api/bookings", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-  const json = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(json.message || "Failed to create booking");
-  return json; // { insertedId }
-}
 
 export async function getBookingById(id) {
-  const res = await fetch(`${BASE_URL}/api/bookings/${id}`, {
-    cache: "no-store",
-  });
-  if (!res.ok) return null;
-  return res.json();
+  try {
+    return await request(`/api/bookings/${id}`);
+  } catch {
+    return null;
+  }
 }
 
-export async function getMyBookings(tenantId) {
-  const res = await fetch(`${BASE_URL}/api/bookings?tenantId=${tenantId}`, {
-    cache: "no-store",
-  });
-  if (!res.ok) throw new Error("Failed to fetch bookings");
-  return res.json();
-}
+export const getMyBookings = () => request("/api/bookings");

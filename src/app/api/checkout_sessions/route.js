@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 
 import { CURRENCY, stripe } from "../../../lib/stripe";
+import { getServerToken } from "@/lib/core/server-token";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5005";
 
@@ -13,9 +14,19 @@ export async function POST(request) {
     const formData = await request.formData();
     const bookingId = formData.get("bookingId");
 
+    // সেশন থেকে JWT নেওয়া হচ্ছে, কারণ সার্ভারের রুট এখন সুরক্ষিত
+    const token = await getServerToken();
+    if (!token) {
+      return NextResponse.json(
+        { error: "Please login again" },
+        { status: 401 },
+      );
+    }
+
     // দাম সার্ভারের বুকিং থেকে নেওয়া হচ্ছে, ক্লায়েন্ট থেকে নয়
     const res = await fetch(`${API}/api/bookings/${bookingId}`, {
       cache: "no-store",
+      headers: { Authorization: `Bearer ${token}` },
     });
     if (!res.ok) {
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });

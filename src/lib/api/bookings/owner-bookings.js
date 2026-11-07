@@ -1,28 +1,9 @@
-const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5005";
+import { request } from "@/lib/api/client";
 
-async function request(path, options = {}) {
-  const res = await fetch(`${BASE}${path}`, {
-    headers: { "Content-Type": "application/json" },
-    cache: "no-store",
-    ...options,
-  });
+export const getOwnerBookings = () => request("/api/bookings");
 
-  let body = null;
-  try {
-    body = await res.json();
-  } catch {}
-
-  if (!res.ok) {
-    throw new Error(body?.message || `Request failed (${res.status})`);
-  }
-  return body;
-}
-
-export const getOwnerBookings = (ownerId) =>
-  request(`/api/bookings?ownerId=${encodeURIComponent(ownerId)}`);
-
-export const updateBookingStatus = (id, ownerId, status) =>
+export const updateBookingStatus = (id, _ownerId, status) =>
   request(`/api/bookings/${id}/status`, {
     method: "PATCH",
-    body: JSON.stringify({ ownerId, status }),
+    body: JSON.stringify({ status }),
   });

@@ -1,39 +1,16 @@
-const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5005";
+import { request } from "@/lib/api/client";
 
-async function request(path, options = {}) {
-  const res = await fetch(`${BASE}${path}`, {
-    headers: { "Content-Type": "application/json" },
-    cache: "no-store",
-    ...options,
-  });
+export const getMyProperties = () => request("/api/my/properties");
 
-  let body = null;
-  try {
-    body = await res.json();
-  } catch {}
+export const getPropertyById = (id) => request(`/api/my/properties/${id}`);
 
-  if (!res.ok) {
-    throw new Error(body?.message || `Request failed (${res.status})`);
-  }
-  return body;
-}
-
-export const getMyProperties = async (ownerId) => {
-  const data = await request(
-    `/api/properties?ownerId=${encodeURIComponent(ownerId)}&limit=50`,
-  );
-  return data.items;
-};
-
-export const getPropertyById = (id) => request(`/api/properties/${id}`);
-
-export const updateProperty = (id, ownerId, data) =>
+export const updateProperty = (id, _ownerId, data) =>
   request(`/api/properties/${id}`, {
     method: "PATCH",
-    body: JSON.stringify({ ...data, ownerId }),
+    body: JSON.stringify(data),
   });
 
-export const deleteProperty = (id, ownerId) =>
-  request(`/api/properties/${id}?ownerId=${encodeURIComponent(ownerId)}`, {
+export const deleteProperty = (id) =>
+  request(`/api/properties/${id}`, {
     method: "DELETE",
   });

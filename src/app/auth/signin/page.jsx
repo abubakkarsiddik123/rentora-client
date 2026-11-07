@@ -23,7 +23,7 @@ const inputClass =
 const labelClass = "mb-2 text-sm font-medium text-white/70";
 
 function getDashboardPath(role) {
-  if (role === "admin") return "/dashboard/admin";
+  if (role === "admin") return "/dashboard/admin/users";
   if (role === "owner") return "/dashboard/owner";
   return "/dashboard/tenant";
 }
